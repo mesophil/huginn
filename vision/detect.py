@@ -2,12 +2,21 @@ from ultralytics import YOLO
 import cv2
 import math
 import logging
+import numpy as np
+
+from config import confThresh, xDim, yDim
 
 def main():
-    logging.info('Loading camera')
-    cam = cv2.VideoCapture(0)
-    cam.set(3, 640)
-    cam.set(4, 480)
+    logging.info('Loading cameras')
+
+    cam0 = cv2.VideoCapture(0)
+    cam0.set(3, xDim)
+    cam0.set(4, yDim)
+
+    cam1 = cv2.VideoCapture(1)
+    cam1.set(3, xDim)
+    cam1.set(4, yDim)
+
     logging.info('Loading model')
 
     model = YOLO("yolo_weights/yolov8s.pt")
@@ -24,9 +33,20 @@ def main():
                   "teddy bear", "hair drier", "toothbrush"]
 
     logging.info('Begin reading')
-    while True:
-        _, img = cam.read()
-        results = model(img, stream=True)
+
+    # somehow get this as input
+    mode = 'far'
+    needImage = True
+
+
+    while needImage and mode != 'return':
+        _, img0 = cam0.read()
+        _, img1 =cam1.read()
+
+        results = model(img0, stream=True)
+
+        if mode == 'close':
+            depthMapping = depthMap(img0, img1)
 
         for r in results:
             boxes = r.boxes
@@ -34,25 +54,43 @@ def main():
             for box in boxes:
                 x1, y1, x2, y2 = box.xyxy[0]
                 x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) # convert to int values
-                cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
 
                 confidence = math.ceil((box.conf[0]*100))/100
                 cls = int(box.cls[0])
 
-                org = [x1, y1]
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                fontScale = 1
-                color = (255, 0, 0)
-                thickness = 2
+                if classNames[cls] == 'keyboard' and confidence >= confThresh:
+                    mid = (np.mean([x1, x2]), np.mean([y1, y2]))
 
-                cv2.putText(img, " ".join([classNames[cls], str(confidence)]), org, font, fontScale, color, thickness)
+                    theta = calculateAngle(mid[0], mid[1])
+                    depth = -1
 
-        cv2.imshow('Webcam', img)
+                    if mode == 'close':
+                        depth = depthMapping[mid[0], mid[1]]
+
+                    # somehow output theta (and maybe depth) to the controller and update parameters mode and needImage
+                    mode = 'return'
+                    needImage = False
+
+
         if cv2.waitKey(1) == ord('q'):
             break
 
-    cam.release()
+    cam0.release()
     cv2.destroyAllWindows()
+
+def calculateAngle(x, y):
+    adjustedMid = (x - xDim//2, y - yDim//2)
+
+    angle = math.atan2(adjustedMid[1], adjustedMid[0])
+    angleDeg = math.degrees(angle)
+
+    return (angleDeg + 360) % 360
+
+def depthMap(img0, img1):
+    stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
+    disparity = stereo.compute(img0, img1)
+
+    return disparity
 
 if __name__ == "__main__":
     logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
