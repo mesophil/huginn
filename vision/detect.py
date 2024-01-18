@@ -4,7 +4,10 @@ import math
 import logging
 import numpy as np
 
-from config import confThresh, xDim, yDim
+from config import confThresh, xDim, yDim, classNames, modelPath
+
+
+logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 def main():
     logging.info('Loading cameras')
@@ -19,25 +22,11 @@ def main():
 
     logging.info('Loading model')
 
-    model = YOLO("yolo_weights/yolov8s.pt")
-
-    classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
-                  "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
-                  "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
-                  "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
-                  "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-                  "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
-                  "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
-                  "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
-                  "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
-                  "teddy bear", "hair drier", "toothbrush"]
+    model = YOLO(modelPath)
 
     logging.info('Begin reading')
 
-    # somehow get this as input
-    mode = 'far'
-    needImage = True
-
+    mode, needImage = readInputs()
 
     while needImage and mode != 'return':
         _, img0 = cam0.read()
@@ -62,21 +51,38 @@ def main():
                     mid = (np.mean([x1, x2]), np.mean([y1, y2]))
 
                     theta = calculateAngle(mid[0], mid[1])
+                    
                     depth = -1
-
                     if mode == 'close':
                         depth = depthMapping[mid[0], mid[1]]
+                        
+                    logging.info(f"Theta: {theta}, Depth: {depth}")
 
                     # somehow output theta (and depth if mode is close) to the controller and update parameters mode and needImage
-                    mode = 'return'
-                    needImage = False
+                    sendOutputs(theta, depth)
 
+                    # early stoppage - remove if not accurate and replace with highest confidence box
+                    break
+
+
+        mode, needImage = readInputs()
+        mode = 'return'
+        needImage = False
 
         if cv2.waitKey(1) == ord('q'):
             break
 
     cam0.release()
+    cam1.release()
     cv2.destroyAllWindows()
+
+
+def readInputs():
+    # somehow get the inputs from the flight controller
+    mode = 'far'
+    needImage = True
+    
+    return mode, needImage
 
 def calculateAngle(x, y):
     adjustedMid = (x - xDim//2, y - yDim//2)
@@ -93,6 +99,9 @@ def depthMap(img0, img1):
 
     return disparity
 
+def sendOutputs(angle, depth):
+    # somehow send the outputs to the flight controller
+    pass
+
 if __name__ == "__main__":
-    logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
     main()
