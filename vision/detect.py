@@ -67,7 +67,7 @@ def main():
                     if mode == 'close':
                         depth = depthMapping[mid[0], mid[1]]
 
-                    # somehow output theta (and maybe depth) to the controller and update parameters mode and needImage
+                    # somehow output theta (and depth if mode is close) to the controller and update parameters mode and needImage
                     mode = 'return'
                     needImage = False
 
@@ -88,6 +88,7 @@ def calculateAngle(x, y):
 
 def depthMap(img0, img1):
     stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
+    # https://wiki.ros.org/stereo_image_proc/Tutorials/ChoosingGoodStereoParameters
     disparity = stereo.compute(img0, img1)
 
     return disparity
