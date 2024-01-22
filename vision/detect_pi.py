@@ -4,6 +4,9 @@ import math
 import logging
 import numpy as np
 
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+
 from config import confThresh, xDim, yDim, classNames, modelPath
 
 
