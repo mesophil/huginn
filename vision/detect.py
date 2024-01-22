@@ -3,7 +3,6 @@ import cv2
 import math
 import logging
 import numpy as np
-import pymavlink
 
 from config import confThresh, xDim, yDim, classNames, modelPath
 
