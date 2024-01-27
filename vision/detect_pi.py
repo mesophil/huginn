@@ -6,28 +6,29 @@ import numpy as np
 
 from config import confThresh, xDim, yDim, classNames, modelPath
 
+from picamera2 import Picamera2
 
 logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 def main():
     logging.info('Loading cameras')
 
-    cam0 = cv2.VideoCapture('/dev/video0')
-    cam0.set(3, xDim)
-    cam0.set(4, yDim)
-
-    # cam1 = cv2.VideoCapture('/dev/video1')
-    # cam1.set(3, xDim)
-    # cam1.set(4, yDim)
+    cam0 = Picamera2(0)
+    cam1 = Picamera2(1)
+    
+    cam0.start()
+    cam1.start()
 
     # model = YOLO(modelPath)
 
     i = 0
     
     while i < 3:
-        _, img0 = cam0.read()
+        img0 = cam0.capture_image("main")
+        img1 = cam1.capture_image("main")
         
-        cv2.imwrite(f'~/Desktop/c{i}.png',img0)
+        cv2.imwrite(f'~/Desktop/c{i}_0.png',img0)
+        cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
 
         # results = model(img0, stream=True)
 
@@ -42,8 +43,9 @@ def main():
         #         cls = int(box.cls[0])
 
         i += 1
-    
-    cv2.destroyAllWindows()
+        
+    cam0.stop()
+    cam1.stop()
 
 
 def readInputs():
