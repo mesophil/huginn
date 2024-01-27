@@ -24,8 +24,8 @@ def main():
     i = 0
     
     while i < 3:
-        img0 = cam0.capture_image("main")
-        img1 = cam1.capture_image("main")
+        img0 = cam0.capture_array("main")
+        img1 = cam1.capture_array("main")
         
         cv2.imwrite(f'~/Desktop/c{i}_0.png',img0)
         cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
