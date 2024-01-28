@@ -3,47 +3,52 @@ import cv2
 import math
 import logging
 import numpy as np
+import time
 
 from config import confThresh, xDim, yDim, classNames, modelPath
 
+from picamera2 import Picamera2
 
 logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 def main():
     logging.info('Loading cameras')
 
-    cam0 = cv2.VideoCapture('/dev/video0')
-    cam0.set(3, xDim)
-    cam0.set(4, yDim)
+    cam0 = Picamera2(0)
+    cam1 = Picamera2(1)
+    
+    cam0.start()
+    cam1.start()
 
-    # cam1 = cv2.VideoCapture('/dev/video1')
-    # cam1.set(3, xDim)
-    # cam1.set(4, yDim)
-
-    # model = YOLO(modelPath)
+    model = YOLO(modelPath)
 
     i = 0
     
     while i < 3:
-        _, img0 = cam0.read()
+        time.sleep(1)
+        img0 = cam0.capture_array("main")
+        time.sleep(1)
+        img1 = cam1.capture_array("main")
         
-        cv2.imwrite(f'~/Desktop/c{i}.png',img0)
+        # cv2.imwrite(f'~/Desktop/c{i}_0.png',img0)
+        # cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
 
-        # results = model(img0, stream=True)
+        results = model(img0, stream=True)
 
-        # for r in results:
-        #     boxes = r.boxes
+        for r in results:
+            boxes = r.boxes
 
-        #     for box in boxes:
-        #         x1, y1, x2, y2 = box.xyxy[0]
-        #         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) # convert to int values
+            for box in boxes:
+                x1, y1, x2, y2 = box.xyxy[0]
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) # convert to int values
 
-        #         confidence = math.ceil((box.conf[0]*100))/100
-        #         cls = int(box.cls[0])
+                confidence = math.ceil((box.conf[0]*100))/100
+                cls = int(box.cls[0])
 
         i += 1
-    
-    cv2.destroyAllWindows()
+        
+    cam0.stop()
+    cam1.stop()
 
 
 def readInputs():
