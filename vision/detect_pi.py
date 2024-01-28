@@ -3,6 +3,7 @@ import cv2
 import math
 import logging
 import numpy as np
+import time
 
 from config import confThresh, xDim, yDim, classNames, modelPath
 
@@ -19,28 +20,30 @@ def main():
     cam0.start()
     cam1.start()
 
-    # model = YOLO(modelPath)
+    model = YOLO(modelPath)
 
     i = 0
     
     while i < 3:
+        time.sleep(1)
         img0 = cam0.capture_array("main")
+        time.sleep(1)
         img1 = cam1.capture_array("main")
         
-        cv2.imwrite(f'~/Desktop/c{i}_0.png',img0)
-        cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
+        # cv2.imwrite(f'~/Desktop/c{i}_0.png',img0)
+        # cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
 
-        # results = model(img0, stream=True)
+        results = model(img0, stream=True)
 
-        # for r in results:
-        #     boxes = r.boxes
+        for r in results:
+            boxes = r.boxes
 
-        #     for box in boxes:
-        #         x1, y1, x2, y2 = box.xyxy[0]
-        #         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) # convert to int values
+            for box in boxes:
+                x1, y1, x2, y2 = box.xyxy[0]
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) # convert to int values
 
-        #         confidence = math.ceil((box.conf[0]*100))/100
-        #         cls = int(box.cls[0])
+                confidence = math.ceil((box.conf[0]*100))/100
+                cls = int(box.cls[0])
 
         i += 1
         
