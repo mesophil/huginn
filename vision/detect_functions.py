@@ -22,6 +22,8 @@ cam1 = Picamera2(1)
 model = YOLO(modelPath)
 
 def findAngle() -> float:
+    foundAngle = None
+    
     cam0.start()
     
     time.sleep(1)
@@ -46,10 +48,17 @@ def findAngle() -> float:
                     
                 logging.info(f"Theta: {theta}")
 
-                return theta
+                foundAngle = theta
+                break
+    
+    cam0.stop()
+    return foundAngle
             
             
 def findAngleWithDepth() -> tuple:
+    
+    foundTrajectory = None
+    
     cam0.start()
     cam1.start()
     
@@ -78,9 +87,14 @@ def findAngleWithDepth() -> tuple:
                 theta = calculateAngle(mid[0], mid[1])
                 depth = depthMapping[mid[0], mid[1]]
                     
-                logging.info(f"Theta: {theta}")
+                logging.info(f"Theta: {theta}, Depth: {depth}")
 
-                return (theta, depth)
+                foundTrajectory = (theta, depth)
+                break
+            
+    cam0.stop()
+    cam1.stop()
+    return foundTrajectory
 
 def calculateAngle(x : float, y : float) -> float:
     adjustedMid = (x - xDim//2, y - yDim//2)
