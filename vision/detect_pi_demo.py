@@ -5,6 +5,8 @@ import logging
 import numpy as np
 import time
 
+from PIL import Image
+
 from config import confThresh, xDim, yDim, classNames, modelPath
 
 from picamera2 import Picamera2
@@ -37,6 +39,8 @@ def main():
         # cv2.imwrite(f'~/Desktop/c{i}_1.png', img1)
 
         results = model(img0) #, stream=True)
+        
+        img0 = cv2.cvtColor(np.array(img0), cv2.COLOR_BGR2RGB)
         
         for r in results:
             boxes = r.boxes
