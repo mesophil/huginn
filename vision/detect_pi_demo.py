@@ -28,7 +28,8 @@ def main():
     
     for _ in range(10):
         time.sleep(1)
-        img0 = cam0.capture_array("main")
+        #img0 = cam0.capture_array("main")
+        img0 = cam0.capture_image("main")
         time.sleep(1)
         img1 = cam1.capture_array("main")
         
