@@ -54,7 +54,6 @@ def findAngle() -> float:
     cam0.stop()
     return foundAngle
             
-            
 def findAngleWithDepth() -> tuple:
     
     foundTrajectory = None
