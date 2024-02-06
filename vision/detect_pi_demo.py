@@ -40,7 +40,7 @@ def main():
 
         results = model(img0) #, stream=True)
         
-        img0 = cv2.cvtColor(np.array(img0), cv2.COLOR_BGR2RGB)
+        img0 = np.transpose(cv2.cvtColor(np.array(img0), cv2.COLOR_BGR2RGB)[0], (2, 1, 0))
         
         for r in results:
             boxes = r.boxes
