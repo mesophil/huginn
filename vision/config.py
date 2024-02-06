@@ -2,7 +2,7 @@ confThresh = 0.75
 xDim = 640
 yDim = 480
 
-modelPath = "yolo_weights/yolov8s.pt"
+modelPath = "yolo_weights/yolov8n.pt"
 
 classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
               "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
