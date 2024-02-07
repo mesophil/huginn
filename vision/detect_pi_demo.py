@@ -68,6 +68,7 @@ def main():
                 cv2.putText(img0, " ".join([classNames[cls], str(confidence), str(theta)]), org, font, fontScale, color, thickness)
                 
         cv2.imshow('Cam', img0)
+        cv2.waitKey(1)
         
     cam0.stop()
     cam1.stop()
