@@ -40,8 +40,8 @@ def main():
 
         results = model(img0) #, stream=True)
         
-        img0 = cv2.cvtColor(np.array(img0), cv2.COLOR_BGR2RGB)
-        img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_BGR2RGB)
+        img0 = cv2.cvtColor(np.array(img0, dtype=np.uint8), cv2.COLOR_BGR2RGB)
+        img1 = cv2.cvtColor(np.array(img1, dtype=np.uint8), cv2.COLOR_BGR2RGB)
         
         for r in results:
             boxes = r.boxes
