@@ -65,7 +65,7 @@ def main():
                 color = (255, 0, 0)
                 thickness = 2
                 
-                cv2.putText(img0, " ".join([classNames[cls], str(confidence), str(theta)], org, font, fontScale, color, thickness))
+                cv2.putText(img0, " ".join([classNames[cls], str(confidence), str(theta)]), org, font, fontScale, color, thickness)
                 
         cv2.imshow('Cam', img0)
         
