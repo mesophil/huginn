@@ -11,9 +11,6 @@ from config import confThresh, xDim, yDim, classNames, modelPath
 
 from picamera2 import Picamera2
 
-from detect_functions import findAngle, findAngleWithDepth, calculateAngle, depthMap
-
-
 logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 def main():
@@ -75,6 +72,13 @@ def main():
     cam0.stop()
     cam1.stop()
 
+def calculateAngle(x : float, y : float) -> float:
+    adjustedMid = (x - xDim//2, y - yDim//2)
+
+    angle = math.atan2(adjustedMid[1], adjustedMid[0])
+    angleDeg = math.degrees(angle)
+
+    return (angleDeg + 360) % 360
 
 if __name__ == "__main__":
     main()
