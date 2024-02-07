@@ -9,6 +9,8 @@ from config import confThresh, xDim, yDim, classNames, modelPath
 
 from picamera2 import Picamera2
 
+from detect_functions import findAngle, findAngleWithDepth, calculateAngle, depthMap
+
 logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 def main():
@@ -57,21 +59,6 @@ def readInputs():
     needImage = True
     
     return mode, needImage
-
-def calculateAngle(x, y):
-    adjustedMid = (x - xDim//2, y - yDim//2)
-
-    angle = math.atan2(adjustedMid[1], adjustedMid[0])
-    angleDeg = math.degrees(angle)
-
-    return (angleDeg + 360) % 360
-
-def depthMap(img0, img1):
-    stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
-    # https://wiki.ros.org/stereo_image_proc/Tutorials/ChoosingGoodStereoParameters
-    disparity = stereo.compute(img0, img1)
-
-    return disparity
 
 def sendOutputs(angle, depth):
     # somehow send the outputs to the flight controller
