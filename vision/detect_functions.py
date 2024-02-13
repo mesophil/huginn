@@ -26,10 +26,13 @@ def findAngle() -> float:
     
     cam0.start()
     
-    time.sleep(1)
-    _, img0 = cam0.read()
+    time.sleep(0.2)
+    img0 = cam0.capture_image("main")
+    time.sleep(0.2)
     
     results = model(img0, stream=True)
+    
+    img0 = cv2.cvtColor(np.array(img0, dtype=np.uint8), cv2.COLOR_BGR2RGB)
     
     for r in results:
         boxes = r.boxes
@@ -54,7 +57,6 @@ def findAngle() -> float:
     cam0.stop()
     return foundAngle
             
-            
 def findAngleWithDepth() -> tuple:
     
     foundTrajectory = None
@@ -62,12 +64,15 @@ def findAngleWithDepth() -> tuple:
     cam0.start()
     cam1.start()
     
-    time.sleep(1)
-    _, img0 = cam0.read()
-    time.sleep(1)
-    _, img1 = cam1.read()
+    time.sleep(0.2)
+    img0 = cam0.capture_image("main")
+    time.sleep(0.2)
+    img1 = cam1.capture_image("main")
     
     results = model(img0, stream=True)
+    
+    img0 = cv2.cvtColor(np.array(img0, dtype=np.uint8), cv2.COLOR_BGR2RGB)
+    img1 = cv2.cvtColor(np.array(img1, dtype=np.uint8), cv2.COLOR_BGR2RGB)
     
     depthMapping = depthMap(img0, img1)
     
