@@ -7,8 +7,8 @@ import time
 
 from config import confThresh, classNames, modelPath
 
-xDim = 1280
-yDim = 720
+xDim = 1088
+yDim = 1088
 
 
 logging.basicConfig(filename='my.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
@@ -27,10 +27,10 @@ def main():
     logging.info('Begin reading')
 
     while True:
-        time.sleep(0.2)
+        time.sleep(1/24)
         _, img0 = cam0.read()
 
-        results = model(img0, stream=True)
+        results = model(img0, conf=0.1, stream_buffer=True)
 
         for r in results:
             boxes = r.boxes
@@ -54,7 +54,8 @@ def main():
                 
                 cv2.putText(img0, f"{classNames[cls]}; Conf {confidence}; Angle {theta:.2f}; Midpoint {mid[0]}, {mid[1]}", org, font, fontScale, color, thickness)
 
-        cv2.imshow('Cam', img0)
+        imgShow = cv2.resize(img0, (xDim//2, yDim//2))
+        cv2.imshow('Cam', imgShow)
 
         if cv2.waitKey(1) == ord('q'):
             break
