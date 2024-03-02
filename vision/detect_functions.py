@@ -107,7 +107,7 @@ def calculateAngle(x : float, y : float) -> float:
     angle = math.atan2(adjustedMid[1], adjustedMid[0])
     angleDeg = math.degrees(angle)
 
-    return (angleDeg + 360) % 360
+    return (angleDeg + 90 + 360) % 360
 
 def depthMap(img0 : list, img1 : list) -> List[List[float]]:
     stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)

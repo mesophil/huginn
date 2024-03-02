@@ -1,4 +1,4 @@
-confThresh = 0.75
+confThresh = 0.15
 xDim = 640
 yDim = 480
 
