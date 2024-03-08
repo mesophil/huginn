@@ -23,6 +23,7 @@ model = YOLO(modelPath)
 
 def findAngle() -> float:
     foundAngle = None
+    mid = None
     
     cam0.start()
     
@@ -49,17 +50,24 @@ def findAngle() -> float:
 
                 theta = calculateAngle(mid[0], mid[1])
                     
-                logging.info(f"Theta: {theta}")
+                logging.info(f"Theta: {theta:.2f}")
 
                 foundAngle = theta
                 break
     
     cam0.stop()
-    return foundAngle
+    
+    centredX, centredY = centre(mid)
+    
+    logging.info(f"Centre of BB: {centredX:.2f}, {centredY:.2f}")
+    
+    return foundAngle, centredX, centredY
             
 def findAngleWithDepth() -> tuple:
     
-    foundTrajectory = None
+    theta = None
+    mid = None
+    depth = None    
     
     cam0.start()
     cam1.start()
@@ -92,14 +100,18 @@ def findAngleWithDepth() -> tuple:
                 theta = calculateAngle(mid[0], mid[1])
                 depth = depthMapping[mid[0], mid[1]]
                     
-                logging.info(f"Theta: {theta}, Depth: {depth}")
+                logging.info(f"Theta: {theta:.2f}, Depth: {depth:.2f}")
 
-                foundTrajectory = (theta, depth)
                 break
             
     cam0.stop()
     cam1.stop()
-    return foundTrajectory
+    
+    centredX, centredY = centre(mid)
+    
+    logging.info(f"Centre of BB: {centredX:.2f}, {centredY:.2f}")
+
+    return theta, centredX, centredY, depth
 
 def calculateAngle(x : float, y : float) -> float:
     adjustedMid = (x - xDim//2, y - yDim//2)
@@ -115,6 +127,15 @@ def depthMap(img0 : list, img1 : list) -> List[List[float]]:
     disparity = stereo.compute(img0, img1)
 
     return disparity
+
+def centre(mid):
+    if not mid:
+        return None, None
+    
+    centredX = xDim//2 - mid[0]
+    centredY = yDim//2 - mid[1]
+    
+    return centredX, centredY
 
 if __name__ == "__main__":
     logging.info("Why did you call me directly?")
