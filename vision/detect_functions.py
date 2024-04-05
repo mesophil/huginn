@@ -50,7 +50,7 @@ def findAngle() -> float:
 
                 theta = calculateAngle(mid[0], mid[1])
                     
-                logging.info(f"Theta: {theta:.2f}")
+                logging.info(f"Theta: {theta}")
 
                 foundAngle = theta
                 break
@@ -59,7 +59,7 @@ def findAngle() -> float:
     
     centredX, centredY = centre(mid)
     
-    logging.info(f"Centre of BB: {centredX:.2f}, {centredY:.2f}")
+    logging.info(f"Centre of BB: {centredX}, {centredY}")
     
     return foundAngle, centredX, centredY
             
@@ -100,7 +100,7 @@ def findAngleWithDepth() -> tuple:
                 theta = calculateAngle(mid[0], mid[1])
                 depth = depthMapping[mid[0], mid[1]]
                     
-                logging.info(f"Theta: {theta:.2f}, Depth: {depth:.2f}")
+                logging.info(f"Theta: {theta}, Depth: {depth}")
 
                 break
             
@@ -109,7 +109,7 @@ def findAngleWithDepth() -> tuple:
     
     centredX, centredY = centre(mid)
     
-    logging.info(f"Centre of BB: {centredX:.2f}, {centredY:.2f}")
+    logging.info(f"Centre of BB: {centredX}, {centredY}")
 
     return theta, centredX, centredY, depth
 
