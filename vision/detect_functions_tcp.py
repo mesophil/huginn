@@ -20,8 +20,6 @@ socket.bind("tcp://*:50165")
 
 import re
 
-
-
 logging.basicConfig(filename='detect.log', format='%(asctime)s : %(levelname)s : %(message)s', encoding='utf-8', level=logging.DEBUG)
 
 # load cams
@@ -33,12 +31,13 @@ model = YOLO(modelPath)
 
 def findAngle() -> float:
     foundAngle = None
+    mid = None
     
     cam0.start()
     
-    time.sleep(2)
+    time.sleep(0.2)
     img0 = cam0.capture_image("main")
-    time.sleep(2)
+    time.sleep(0.2)
     
     results = model(img0, stream=True)
     
@@ -59,17 +58,24 @@ def findAngle() -> float:
 
                 theta = calculateAngle(mid[0], mid[1])
                     
-                logging.info(f"Theta: {theta}")
+                logging.info(f"Theta: {theta:}")
 
                 foundAngle = theta
                 break
     
     cam0.stop()
-    return foundAngle
+    
+    centredX, centredY = centre(mid)
+    
+    logging.info(f"Centre of BB: {centredX:}, {centredY:}")
+    
+    return foundAngle, centredX, centredY
             
 def findAngleWithDepth() -> tuple:
     
-    foundTrajectory = None
+    theta = None
+    mid = None
+    depth = None    
     
     cam0.start()
     cam1.start()
@@ -102,14 +108,18 @@ def findAngleWithDepth() -> tuple:
                 theta = calculateAngle(mid[0], mid[1])
                 depth = depthMapping[mid[0], mid[1]]
                     
-                logging.info(f"Theta: {theta}, Depth: {depth}")
+                logging.info(f"Theta: {theta:}, Depth: {depth:}")
 
-                foundTrajectory = (theta, depth)
                 break
             
     cam0.stop()
     cam1.stop()
-    return foundTrajectory
+    
+    centredX, centredY = centre(mid)
+    
+    logging.info(f"Centre of BB: {centredX:}, {centredY:}")
+
+    return theta, centredX, centredY, depth
 
 def calculateAngle(x : float, y : float) -> float:
     adjustedMid = (x - xDim//2, y - yDim//2)
@@ -117,7 +127,7 @@ def calculateAngle(x : float, y : float) -> float:
     angle = math.atan2(adjustedMid[1], adjustedMid[0])
     angleDeg = math.degrees(angle)
 
-    return (angleDeg + 360) % 360
+    return (angleDeg + 90 + 360) % 360
 
 def depthMap(img0 : list, img1 : list) -> List[List[float]]:
     stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
@@ -126,11 +136,19 @@ def depthMap(img0 : list, img1 : list) -> List[List[float]]:
 
     return disparity
 
+def centre(mid):
+    if not mid:
+        return None, None
+    
+    centredX = xDim//2 - mid[0]
+    centredY = yDim//2 - mid[1]
+    
+    return centredX, centredY
+
 def printData(message):
-    sleep(1)
+    time.sleep(1)
     print(message)
     return
-
 
 if __name__ == "__main__": 
     while True:
@@ -140,15 +158,13 @@ if __name__ == "__main__":
 
         if "Angle" in message:
             data = findAngle()
-            if any(s is None for s in data): data = "None"
-            data_string = list(str(x) for x in data)
+            print(data)
             angle = data[0]
             socket.send(str(angle).encode())
             printData(str(angle))
         elif "XY" in message:
             data = findAngle()
-            if any(s is None for s in data): data = "None"
-            data_string = list(str(x) for x in data)
+            print(data)
             pos = [data[1],data[2]]
             socket.send(str(pos).encode())
             printData(str(pos))
@@ -156,5 +172,5 @@ if __name__ == "__main__":
             #  Send reply back to client
             socket.send(b"error")
 
-        sleep(5)
+        time.sleep(5)
         print(datetime.now(),message)
