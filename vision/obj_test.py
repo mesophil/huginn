@@ -65,11 +65,12 @@ def main():
 
 def calculateAngle(x, y):
     adjustedMid = (x - xDim//2, y - yDim//2)
+    adjustedMid = (x, y)
 
-    angle = math.atan2(adjustedMid[1], adjustedMid[0])
+    angle = math.atan2(adjustedMid[0], adjustedMid[1])
     angleDeg = math.degrees(angle)
 
-    return (angleDeg + 90 + 360) % 360
+    return (angleDeg + 360) % 360
 
 def depthMap(img0, img1):
     stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
@@ -78,5 +79,24 @@ def depthMap(img0, img1):
 
     return disparity
 
+
+def unitTestAngle():
+    
+    xy = [[10, 10, 45], [-10, -10, 225], [10, -10, 135], [-10, 10, 315]]
+    
+    for i, x, y, a in enumerate(xy):
+        print(f"Unit Test {i}, Begin")
+        theta = calculateAngle(x, y)
+        print(f"x: {x}, y: {y}")
+        print(f"Calculated Angle: {theta}")
+        print(f"True Angle: {a}")
+        
+        if theta == a:
+            print(f"Unit Test {i} Passed")
+        else:
+            print(f"Unit Test {i} Failed")
+
 if __name__ == "__main__":
     main()
+    
+    # unitTestAngle()
