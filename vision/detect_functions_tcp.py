@@ -24,7 +24,7 @@ logging.basicConfig(filename='detect.log', format='%(asctime)s : %(levelname)s :
 
 # load cams
 cam0 = Picamera2(0)
-cam1 = Picamera2(1)
+#cam1 = Picamera2(1)
 
 # load model
 model = YOLO(modelPath)
@@ -78,17 +78,17 @@ def findAngleWithDepth() -> tuple:
     depth = None    
     
     cam0.start()
-    cam1.start()
+    #cam1.start()
     
     time.sleep(0.2)
     img0 = cam0.capture_image("main")
     time.sleep(0.2)
-    img1 = cam1.capture_image("main")
+    #img1 = cam1.capture_image("main")
     
     results = model(img0, stream=True)
     
     img0 = cv2.cvtColor(np.array(img0, dtype=np.uint8), cv2.COLOR_BGR2RGB)
-    img1 = cv2.cvtColor(np.array(img1, dtype=np.uint8), cv2.COLOR_BGR2RGB)
+    #img1 = cv2.cvtColor(np.array(img1, dtype=np.uint8), cv2.COLOR_BGR2RGB)
     
     depthMapping = depthMap(img0, img1)
     
@@ -113,7 +113,7 @@ def findAngleWithDepth() -> tuple:
                 break
             
     cam0.stop()
-    cam1.stop()
+    #cam1.stop()
     
     centredX, centredY = centre(mid)
     
@@ -122,12 +122,12 @@ def findAngleWithDepth() -> tuple:
     return theta, centredX, centredY, depth
 
 def calculateAngle(x : float, y : float) -> float:
-    adjustedMid = (x - xDim//2, y - yDim//2)
+    adjustedMid = (-x + xDim//2, -y + yDim//2)
 
-    angle = math.atan2(adjustedMid[1], adjustedMid[0])
+    angle = math.atan2(adjustedMid[0], adjustedMid[1])
     angleDeg = math.degrees(angle)
 
-    return (angleDeg + 90 + 360) % 360
+    return (angleDeg + 360) % 360
 
 def depthMap(img0 : list, img1 : list) -> List[List[float]]:
     stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15) # optimize this  (specifically the hyperparameters)
