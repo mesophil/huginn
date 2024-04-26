@@ -80,7 +80,7 @@ def calculateAngle(x : float, y : float) -> float:
     angle = math.atan2(adjustedMid[1], adjustedMid[0])
     angleDeg = math.degrees(angle)
 
-    return (angleDeg + 360) % 360
+    return (angleDeg + 90 + 360) % 360
 
 if __name__ == "__main__":
     main()

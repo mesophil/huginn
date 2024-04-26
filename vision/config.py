@@ -1,6 +1,6 @@
-confThresh = 0.75
-xDim = 640
-yDim = 480
+confThresh = 0.15
+xDim = 4608 
+yDim = 2592 
 
 modelPath = "yolo_weights/yolov8n.pt"
 
